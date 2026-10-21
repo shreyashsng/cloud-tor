@@ -1,0 +1,10 @@
+node_modules
+.env
+tmp/
+*.log
+cloud-tor
+cloud-tor.exe
+cloud-tor.exe~
+storage_ledger.json
+.DS_Store
+Thumbs.db

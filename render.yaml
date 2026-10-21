@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: cloud-tor
+    runtime: docker
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: VID_API_KEY
+        sync: false
+      - key: PLA_API_KEY
+        sync: false

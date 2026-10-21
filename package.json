@@ -1,0 +1,17 @@
+{
+  "name": "cloud-tor",
+  "version": "1.0.0",
+  "description": "Zero-Disk Magnet to Direct HTTPS Download & Cloud Ingestion (VID & PLA)",
+  "type": "module",
+  "scripts": {
+    "start": "go run main.go",
+    "build": "go build -ldflags=\"-s -w\" -o cloud-tor ."
+  },
+  "keywords": [
+    "torrent",
+    "magnet",
+    "streaming",
+    "cloud"
+  ],
+  "license": "MIT"
+}

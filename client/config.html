@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud-Tor — Internal System Configuration</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css?v=3.3.0">
+</head>
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <div class="dither-horizon" aria-hidden="true"></div>
+
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="/" class="brand-mark">
+          <span class="brand-monogram">CT</span>
+          <span class="brand-name">Cloud-Tor</span>
+          <span class="version-tag">Admin // /cg/config-tor</span>
+        </a>
+      </div>
+      <nav class="nav-right">
+        <a href="/" class="nav-link">&larr; Back to Public Portal</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-body">
+    <section class="hero-block" style="text-align: left; padding: 2rem 0;">
+      <div class="hero-meta-tag">
+        <span class="meta-tag-dot"></span>
+        <span class="meta-tag-text">INTERNAL SYSTEM CONSOLE // RESTRICTED ACCESS</span>
+      </div>
+
+      <h1 class="hero-headline" style="font-size: 2.2rem; margin-top: 0.75rem;">
+        Internal Storage & <br>
+        <span class="serif-accent">Infrastructure Configuration</span>
+      </h1>
+      <p class="hero-description" style="margin: 0.5rem 0 2rem; max-width: 650px;">
+        Manage Backblaze B2 object storage credentials, view Upstash Redis cache status, and monitor Turso marketing database records.
+      </p>
+
+      <!-- Status Grid -->
+      <div class="pillars-section" style="margin-top: 1rem; margin-bottom: 2.5rem;">
+        <div class="pillar-card">
+          <div class="pillar-index">01 // CLOUD STORAGE</div>
+          <h3 class="pillar-title" id="admin-storage-status">Checking...</h3>
+          <p class="pillar-body" id="admin-storage-detail">Backblaze B2 S3 storage pool status.</p>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-index">02 // CACHE LAYER</div>
+          <h3 class="pillar-title" id="admin-cache-status">Upstash Redis</h3>
+          <p class="pillar-body">High-speed metadata & resolve cache active (24h TTL).</p>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-index">03 // ANALYTICS DB</div>
+          <h3 class="pillar-title" id="admin-db-status">Turso Database</h3>
+          <p class="pillar-body">Persistent torrent metadata ledger & marketing database.</p>
+        </div>
+      </div>
+
+      <!-- Config Panel -->
+      <div class="matrix-card" style="margin-top: 1rem; max-width: 720px; padding: 2rem;">
+        <h3 class="modal-title" style="margin-bottom: 0.5rem;">Backblaze B2 / S3 Configuration</h3>
+        <p class="modal-lead" style="margin-bottom: 1.5rem;">Changes take effect immediately without restarting the server.</p>
+
+        <form id="admin-config-form">
+          <div class="field-group">
+            <div class="field-label-row">
+              <label for="admin-access-key">Application Key ID / Key ID</label>
+              <span class="field-badge">AUTH</span>
+            </div>
+            <input type="text" id="admin-access-key" class="text-input" placeholder="003..." autocomplete="off">
+            <span class="field-hint">From Backblaze B2 Console &gt; Application Keys</span>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <label for="admin-secret-key">Application Key (Secret)</label>
+              <span class="field-badge">AUTH</span>
+            </div>
+            <input type="password" id="admin-secret-key" class="text-input" placeholder="K003..." autocomplete="off">
+            <span class="field-hint">Your private Backblaze Application Key</span>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <label for="admin-buckets">Bucket Name(s)</label>
+              <span class="field-badge">MULTI-BUCKET READY</span>
+            </div>
+            <input type="text" id="admin-buckets" class="text-input" placeholder="webt-temp" autocomplete="off">
+            <span class="field-hint">Comma-separated bucket names for round-robin distribution</span>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <label for="admin-endpoint">S3 Endpoint URL</label>
+              <span class="field-badge">ENDPOINT</span>
+            </div>
+            <input type="text" id="admin-endpoint" class="text-input" placeholder="https://s3.eu-central-003.backblazeb2.com" autocomplete="off">
+            <span class="field-hint">From B2 Bucket details</span>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <label for="admin-region">Region</label>
+              <span class="field-badge">REGION</span>
+            </div>
+            <input type="text" id="admin-region" class="text-input" placeholder="eu-central-003" autocomplete="off">
+          </div>
+
+          <div style="display: flex; gap: 1rem; align-items: center; margin-top: 2rem;">
+            <button type="submit" id="btn-admin-save" class="btn-solid" style="padding: 0.65rem 1.5rem;">Save Configuration</button>
+            <span id="admin-save-msg" style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-emerald);"></span>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    async function loadStatus() {
+      try {
+        const res = await fetch('/api/admin/storage/status');
+        const data = await res.json();
+        const statusEl = document.getElementById('admin-storage-status');
+        const detailEl = document.getElementById('admin-storage-detail');
+        if (data.success && data.isConfigured) {
+          statusEl.textContent = `Connected (${data.bucketCount} Bucket)`;
+          statusEl.style.color = 'var(--accent-emerald)';
+          detailEl.textContent = `${data.activeObjects} active object(s) in 6-hour retention pool.`;
+        } else {
+          statusEl.textContent = 'Unconfigured';
+          statusEl.style.color = 'var(--accent-rose)';
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    document.getElementById('admin-config-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const accessKey = document.getElementById('admin-access-key').value.trim();
+      const secretKey = document.getElementById('admin-secret-key').value.trim();
+      const buckets = document.getElementById('admin-buckets').value.trim();
+      const endpoint = document.getElementById('admin-endpoint').value.trim();
+      const region = document.getElementById('admin-region').value.trim();
+
+      const msgEl = document.getElementById('admin-save-msg');
+      msgEl.textContent = 'Saving...';
+      msgEl.style.color = 'var(--text-muted)';
+
+      try {
+        const res = await fetch('/api/storage/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessKey, secretKey, buckets, endpoint, region })
+        });
+        const data = await res.json();
+        if (data.success) {
+          msgEl.textContent = 'Configuration saved and active!';
+          msgEl.style.color = 'var(--accent-emerald)';
+          loadStatus();
+        } else {
+          msgEl.textContent = 'Error: ' + (data.error || 'Failed to save');
+          msgEl.style.color = 'var(--accent-rose)';
+        }
+      } catch (err) {
+        msgEl.textContent = 'Error: ' + err.message;
+        msgEl.style.color = 'var(--accent-rose)';
+      }
+    });
+
+    loadStatus();
+  </script>
+</body>
+</html>
